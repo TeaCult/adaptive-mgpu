@@ -1,0 +1,73 @@
+import requests
+import numpy as np
+import time
+import sys
+PORT=5000
+# Define the nonlinear MIMO function for generating synthetic data
+def nonlinear_mimo_system(x, a, b, c, d):
+    num_outputs = a.shape[0]
+    y = np.zeros(num_outputs)
+    for i in range(num_outputs):
+        y[i] = np.sum(a[i, :] * np.sin(b[i, :] * x**2)) + c[i] * np.cos(np.sum(d[i, :] * x))
+    return y
+
+# Parameters for generating synthetic data
+num_inputs = 10
+num_outputs = 10
+np.random.seed(0)
+
+# Random coefficients for the nonlinear system
+a = np.random.rand(num_outputs, num_inputs)
+b = np.random.rand(num_outputs, num_inputs)
+c = np.random.rand(num_outputs)
+d = np.random.rand(num_outputs, num_inputs)
+
+# Generate the initial dataset of 1000 input-output pairs
+initial_inputs = np.random.rand(1000, num_inputs) * 2 - 1
+initial_outputs = np.array([nonlinear_mimo_system(x, a, b, c, d) for x in initial_inputs])
+
+# Send initial batch to server for training
+train_payload = {
+    'inputs': initial_inputs.tolist(),
+    'outputs': initial_outputs.tolist()
+}
+train_response = requests.post(f"http://192.168.5.120:{PORT}/train", json=train_payload)
+print("Initial training response:", train_response.json())
+
+# Send individual prediction requests in a loop
+request_count = 0
+while True:
+    # Modify the coefficients every 100 requests to change the nonlinear system slightly
+    if request_count > 0 and request_count % 100 == 0:
+        a += np.random.randn(num_outputs, num_inputs) * 0.01  # Small random change
+        b += np.random.randn(num_outputs, num_inputs) * 0.01
+        c += np.random.randn(num_outputs) * 0.01
+        d += np.random.randn(num_outputs, num_inputs) * 0.01
+        print("Nonlinear function coefficients updated")
+
+    # Generate a random input for prediction
+    input_data = np.random.rand(num_inputs) * 2 - 1
+    actual_output = nonlinear_mimo_system(input_data, a, b, c, d)
+    
+    # Send prediction request to server
+    predict_payload = {
+        'input': input_data.tolist(),
+        'actual_output': actual_output.tolist()
+    }
+    predict_response = requests.post(f"http://192.168.5.120:{PORT}/predict", json=predict_payload)
+    #print("Prediction response:", predict_response.json())
+    #print("Actual response:", actual_output.tolist())
+
+    prediction = np.array(predict_response.json()['prediction'])
+    mse_error = np.mean((prediction - actual_output) ** 2)
+    mae_error = np.mean(np.abs(prediction - actual_output))
+
+    # Print the errors
+    #print(f"Mean Squared Error: {mse_error:.6f}")
+    print(f"Mean Absolute Error: {mae_error:.6f}")
+    # Increment request count
+    request_count += 1
+
+    # Wait before sending the next request
+    time.sleep(1)
+

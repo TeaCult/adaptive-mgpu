@@ -1,0 +1,16 @@
+Adaptive Small Neural Networks on Two GPUs
+Copyright (c) 2024-2026 gedizgursu
+
+Licensed under the custom Noncommercial Attribution and Citation License 1.0.
+Noncommercial use only; see LICENSE for the complete terms.
+
+Retain this notice when redistributing the project or modified versions.
+Publications and public projects making material use of this work or its
+results must cite the project as specified in LICENSE and CITATION.cff.
+
+Suggested citation:
+gedizgursu. Adaptive Small Neural Networks on Two GPUs. Software and research
+study. Cite the repository URL and version, commit, or access date when available.
+
+Original study scripts date from 2024. The continuation and repository
+preparation date from 2026. No dual-RTX-3060 performance result is claimed.

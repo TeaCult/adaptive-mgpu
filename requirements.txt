@@ -1,0 +1,5 @@
+# Install the appropriate PyTorch wheel separately; see README.md.
+torch>=2.5,<3
+Flask>=3.0,<4
+numpy>=1.26,<3
+requests>=2.32,<3

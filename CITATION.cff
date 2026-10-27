@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: >-
+  If you publish work that makes material use of this software or its results,
+  you must cite this project under its custom Noncommercial Attribution and
+  Citation License. Include the repository URL and version, commit, or access
+  date used when available.
+type: software
+title: "Adaptive Small Neural Networks on Two GPUs"
+authors:
+  - name: "gedizgursu"
+abstract: >-
+  A research study and minimal continuation for many small independent MIMO
+  neural networks, GPU resource sharing, and live adaptation with separate
+  training and inference devices. Dual-RTX-3060 performance is unverified.
+keywords:
+  - adaptive neural networks
+  - online learning
+  - multi-GPU
+  - CUDA MPS
+  - system identification

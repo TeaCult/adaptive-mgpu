@@ -1,0 +1,116 @@
+from flask import Flask, request, jsonify
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.optim.lr_scheduler import ExponentialLR
+import logging
+
+app = Flask(__name__)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.CRITICAL)
+
+# Define the model
+class MIMOModel(nn.Module):
+    def __init__(self, input_size=10, hidden_size=128, output_size=10):
+        super(MIMOModel, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, output_size)
+
+    def forward(self, x):
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+# Initialize model, loss, and optimizer
+model = MIMOModel()
+criterion = nn.MSELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+scheduler = ExponentialLR(optimizer, gamma=0.99)  # Decay rate to retain previous learning
+
+# Data buffers for batch updates
+input_data_buffer = []
+output_data_buffer = []
+prediction_count = 0  # Tracks number of predictions since last update
+
+@app.route('/train', methods=['POST'])
+def initial_train():
+    # Initial training with 1000 data points
+    data = request.json
+    inputs = torch.tensor(data['inputs'], dtype=torch.float32)
+    outputs = torch.tensor(data['outputs'], dtype=torch.float32)
+    
+    # Training loop
+    num_epochs = 1000
+    batch_size = 64
+    for epoch in range(num_epochs):
+        permutation = torch.randperm(inputs.size(0))
+        epoch_loss = 0.0
+        
+        for i in range(0, inputs.size(0), batch_size):
+            indices = permutation[i:i + batch_size]
+            batch_inputs = inputs[indices]
+            batch_outputs = outputs[indices]
+
+            # Forward pass
+            predictions = model(batch_inputs)
+            loss = criterion(predictions, batch_outputs)
+            
+            # Backward pass and optimization
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            epoch_loss += loss.item()
+        
+        # Print progress every epoch
+        print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.6f}')
+
+    return jsonify({"status": "Initial training completed"})
+
+@app.route('/predict', methods=['POST'])
+def predict_and_update():
+    global prediction_count
+
+    # Parse input data
+    data = request.json
+    input_data = torch.tensor(data['input'], dtype=torch.float32).unsqueeze(0)
+    actual_output = torch.tensor(data['actual_output'], dtype=torch.float32).unsqueeze(0)
+    
+    # Model prediction
+    model.eval()
+    with torch.no_grad():
+        prediction = model(input_data)
+    prediction_response = prediction.squeeze().tolist()
+
+    # Accumulate data in buffers
+    input_data_buffer.append(input_data)
+    output_data_buffer.append(actual_output)
+    prediction_count += 1
+
+    # Update the model every 100 prediction requests
+    if prediction_count >= 100:
+        # Stack buffer data into a single batch
+        batch_inputs = torch.cat(input_data_buffer)
+        batch_outputs = torch.cat(output_data_buffer)
+
+        # Training step with decay to retain previous knowledge
+        model.train()
+        optimizer.zero_grad()
+        predictions = model(batch_inputs)
+        loss = criterion(predictions, batch_outputs)
+        loss.backward()
+        optimizer.step()
+        scheduler.step()  # Apply learning rate decay
+        print(f"Model adapted with batch update. Loss: {loss.item()}")
+
+        # Clear buffers and reset prediction counter
+        input_data_buffer.clear()
+        output_data_buffer.clear()
+        prediction_count = 0
+
+    return jsonify({'prediction': prediction_response})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', debug=True, port=5000)

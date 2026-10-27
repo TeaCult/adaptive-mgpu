@@ -1,0 +1,88 @@
+Noncommercial Attribution and Citation License
+Version 1.0
+
+Copyright (c) 2024-2026 gedizgursu
+
+This is a custom source-available license. It is not the PolyForm license,
+an SPDX-listed standard license, or an open-source license.
+
+1. Scope and permission
+
+The copyright holder (the "Licensor") grants you a worldwide, nonexclusive,
+royalty-free license to use, copy, study, modify, and distribute this project's
+software, documentation, and other material supplied under this license (the
+"Work"), including modified versions, solely for Noncommercial Purposes and
+subject to the conditions below. These permissions apply only to rights held
+by the Licensor. Third-party material and dependencies remain subject to their
+own licenses. No trademark rights are granted.
+
+2. Noncommercial Purposes
+
+"Noncommercial Purposes" means activities that are not primarily intended for
+or directed toward commercial advantage or monetary compensation. Personal
+study, education, and research are permitted when they satisfy this definition.
+An organization's nonprofit or academic status does not by itself make every
+activity noncommercial.
+
+Without separate written permission from the Licensor, you may not sell or
+commercially license the Work, use it to provide a paid product or service,
+incorporate it into commercial products, or use it for internal business
+operations or research and development intended to obtain commercial advantage.
+
+3. Attribution and distribution
+
+Every distributed copy of the Work or a modified version must retain this
+license, the copyright notice, and the attribution in NOTICE. Where the Work
+is distributed as part of a larger product, these notices must remain readily
+accessible in that product's documentation or legal notices. Mark material
+modifications and identify their author without implying endorsement by the
+Licensor. Redistributed portions and modifications of the Work must remain
+available under this license; you may not grant recipients commercial-use
+rights or remove these attribution and citation conditions.
+
+4. Citation in published work
+
+As a condition of the permissions granted here, if you publish or otherwise
+publicly communicate a paper, thesis, report, benchmark, dataset, software
+project, presentation, or other work that makes material use of the Work,
+its modifications, or results obtained using it, you must include a clear
+citation to this project. The citation must identify:
+
+  - Author: gedizgursu
+  - Title: Adaptive Small Neural Networks on Two GPUs
+  - The project's repository URL, when one is available
+  - The version, commit, or access date used, when available
+
+Place the citation in the references, acknowledgments, README, or another
+normally visible attribution section appropriate to the publication. Use
+CITATION.cff for the project's citation metadata. Private use without public
+communication does not require publishing a citation or disclosing your work;
+the other conditions of this license still apply.
+
+5. Separate permissions
+
+Commercial use, or an exception to the conditions above, requires separate
+written permission from the Licensor. This license does not prevent the
+Licensor from offering the Work under other terms.
+
+6. Termination
+
+Your permissions under this license end automatically if you violate its
+conditions. They are reinstated if you cure the violation within 30 days
+after becoming aware of it, unless the Licensor has previously reinstated
+your permissions after an earlier violation. Termination does not terminate
+the permissions of recipients who remain in compliance with this license.
+
+7. Rights preserved by law
+
+This license does not restrict uses that do not require permission under
+applicable law, including applicable copyright exceptions and limitations.
+
+8. Disclaimer of warranty and liability
+
+TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE WORK IS PROVIDED "AS IS",
+WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE LICENSOR OR CONTRIBUTORS BE LIABLE FOR ANY CLAIM,
+DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH
+THE WORK OR ITS USE, WHETHER IN CONTRACT, TORT, OR OTHERWISE.

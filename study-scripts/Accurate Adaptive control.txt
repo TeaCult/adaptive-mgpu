@@ -1,0 +1,107 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the nonlinear MIMO function
+def nonlinear_mimo_system(x, a, b, c, d):
+    num_outputs = a.shape[0]
+    y = np.zeros(num_outputs)
+    for i in range(num_outputs):
+        y[i] = np.sum(a[i, :] * np.sin(b[i, :] * x**2)) + c[i] * np.cos(np.sum(d[i, :] * x))
+    return y
+
+# Parameters for the nonlinear system
+num_inputs = 10
+num_outputs = 10
+num_samples = 10000
+
+# Random coefficients for the nonlinear equations
+np.random.seed(0)
+a = np.random.rand(num_outputs, num_inputs)
+b = np.random.rand(num_outputs, num_inputs)
+c = np.random.rand(num_outputs)
+d = np.random.rand(num_outputs, num_inputs)
+
+# Generate the dataset
+inputs = np.random.rand(num_samples, num_inputs) * 2 - 1  # Random input between -1 and 1
+outputs = np.array([nonlinear_mimo_system(x, a, b, c, d) for x in inputs])
+
+# Convert dataset to PyTorch tensors
+inputs_tensor = torch.tensor(inputs, dtype=torch.float32)
+outputs_tensor = torch.tensor(outputs, dtype=torch.float32)
+
+# Define the neural network model
+class MIMOModel(nn.Module):
+    def __init__(self, input_size=10, hidden_size=128, output_size=10):
+        super(MIMOModel, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, output_size)
+
+    def forward(self, x):
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+# Initialize the model, loss function, and optimizer
+model = MIMOModel()
+criterion = nn.MSELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+# Training loop
+num_epochs = 1000
+batch_size = 64
+loss_history = []
+
+for epoch in range(num_epochs):
+    permutation = torch.randperm(inputs_tensor.size(0))
+    epoch_loss = 0.0
+    
+    for i in range(0, inputs_tensor.size(0), batch_size):
+        indices = permutation[i:i + batch_size]
+        batch_inputs = inputs_tensor[indices]
+        batch_outputs = outputs_tensor[indices]
+
+        # Forward pass
+        predictions = model(batch_inputs)
+        loss = criterion(predictions, batch_outputs)
+        
+        # Backward pass and optimization
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+        epoch_loss += loss.item()
+    
+    # Average loss per epoch
+    epoch_loss /= (inputs_tensor.size(0) / batch_size)
+    loss_history.append(epoch_loss)
+
+    # Print progress every 100 epochs
+    if (epoch + 1) % 100 == 0:
+        print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.6f}')
+
+# Plot the loss over epochs
+plt.plot(loss_history)
+plt.xlabel('Epoch')
+plt.ylabel('Mean Squared Error')
+plt.title('Training Loss')
+plt.show()
+
+# Evaluate model performance
+model.eval()
+with torch.no_grad():
+    predictions = model(inputs_tensor)
+    mse = criterion(predictions, outputs_tensor).item()
+    print(f'Final Mean Squared Error on training data: {mse:.6f}')
+    
+    # Example predictions vs actual outputs
+    for i in range(5):
+        print(f'Input: {inputs_tensor[i].numpy()}')
+        print(f'Prediction: {predictions[i].numpy()}')
+        print(f'Actual Output: {outputs_tensor[i].numpy()}')
+        print()
+
